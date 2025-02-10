@@ -41,11 +41,12 @@
 #include "lldb-eval/ast.h"
 #include "lldb-eval/defines.h"
 #include "lldb/lldb-enumerations.h"
+#include "llvm/ADT/FloatingPointMode.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/iterator_range.h"
 #include "llvm/Support/FormatAdapters.h"
 #include "llvm/Support/FormatVariadic.h"
-#include "llvm/Support/Host.h"
+#include "llvm/TargetParser/Host.h"
 
 namespace {
 
@@ -2322,7 +2323,7 @@ ExprResult Parser::ParseFloatingLiteral(clang::NumericLiteralParser& literal,
                                          ? llvm::APFloat::IEEEsingle()
                                          : llvm::APFloat::IEEEdouble();
   llvm::APFloat raw_value(format);
-  llvm::APFloat::opStatus result = literal.GetFloatValue(raw_value);
+  llvm::APFloat::opStatus result = literal.GetFloatValue(raw_value, llvm::RoundingMode::TowardZero);
 
   // Overflow is always an error, but underflow is only an error if we
   // underflowed to zero (APFloat reports denormals as underflow).
@@ -2360,7 +2361,7 @@ ExprResult Parser::ParseIntegerLiteral(clang::NumericLiteralParser& literal,
 
   return std::make_unique<LiteralNode>(
       token.getLocation(), ctx_->GetBasicType(type), raw_value,
-      /*is_literal_zero*/ raw_value.isNullValue());
+      /*is_literal_zero*/ raw_value.isZero());
 }
 
 // Parse a builtin_func.

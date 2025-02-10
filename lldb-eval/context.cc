@@ -33,7 +33,7 @@
 #include "lldb/API/SBTypeEnumMember.h"
 #include "lldb/API/SBValue.h"
 #include "lldb/API/SBValueList.h"
-#include "llvm/ADT/Triple.h"
+#include "llvm/TargetParser/Triple.h"
 #include "llvm/ADT/Twine.h"
 #include "llvm/Support/FormatAdapters.h"
 #include "llvm/Support/FormatVariadic.h"
@@ -144,7 +144,7 @@ TypeSP Context::ResolveTypeByName(const std::string& name) const {
   llvm::StringRef name_ref(name);
   bool global_scope = false;
 
-  if (name_ref.startswith("::")) {
+  if (name_ref.starts_with("::")) {
     name_ref = name_ref.drop_front(2);
     global_scope = true;
   }
@@ -164,7 +164,7 @@ TypeSP Context::ResolveTypeByName(const std::string& name) const {
 
     if (type_name == name_ref) {
       full_match = type;
-    } else if (type_name.endswith(name_ref)) {
+    } else if (type_name.ends_with(name_ref)) {
       partial_matches.push_back(type);
     }
   }
@@ -210,9 +210,9 @@ static lldb::SBValue LookupStaticIdentifier(lldb::SBTarget target,
 
     if (val_name == name_ref ||
         val_name == llvm::formatv("::{0}", name_ref).str() ||
-        val_name.endswith(llvm::formatv(" {0}", name_ref).str()) ||
-        val_name.endswith(llvm::formatv("*{0}", name_ref).str()) ||
-        val_name.endswith(llvm::formatv("&{0}", name_ref).str())) {
+        val_name.ends_with(llvm::formatv(" {0}", name_ref).str()) ||
+        val_name.ends_with(llvm::formatv("*{0}", name_ref).str()) ||
+        val_name.ends_with(llvm::formatv("&{0}", name_ref).str())) {
       return val;
     }
   }
@@ -232,7 +232,7 @@ std::unique_ptr<ParserContext::IdentifierInfo> Context::LookupIdentifier(
 
   // Support $rax as a special syntax for accessing registers.
   // Will return an invalid value in case the requested register doesn't exist.
-  if (name_ref.startswith("$")) {
+  if (name_ref.starts_with("$")) {
     const char* reg_name = name_ref.drop_front(1).data();
     return IdentifierInfo::FromValue(ctx_.GetFrame().FindRegister(reg_name));
   }
@@ -240,7 +240,7 @@ std::unique_ptr<ParserContext::IdentifierInfo> Context::LookupIdentifier(
   // Internally values don't have global scope qualifier in their names and
   // LLDB doesn't support queries with it too.
   bool global_scope = false;
-  if (name_ref.startswith("::")) {
+  if (name_ref.starts_with("::")) {
     name_ref = name_ref.drop_front(2);
     global_scope = true;
   }

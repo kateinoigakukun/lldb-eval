@@ -92,7 +92,7 @@ class LLDBType : public Type {
   MemberInfo GetFieldAtIndex(uint32_t idx) override {
     auto member = type_.GetFieldAtIndex(idx);
     auto name = member.GetName() ? std::string(member.GetName())
-                                 : llvm::Optional<std::string>();
+                                 : std::optional<std::string>();
     return {name, LLDBType::CreateSP(member.GetType()), member.IsBitfield(),
             member.GetBitfieldSizeInBits()};
   }

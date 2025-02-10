@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "lldb/lldb-enumerations.h"
-#include "llvm/ADT/Optional.h"
 #include "llvm/ADT/StringRef.h"
 
 namespace lldb_eval {
@@ -52,7 +51,7 @@ class Type {
   virtual TypeSP GetVirtualBaseClassAtIndex(uint32_t) = 0;
 
   struct MemberInfo {
-    llvm::Optional<std::string> name;
+    std::optional<std::string> name;
     TypeSP type;
     bool is_bitfield;
     uint32_t bitfield_size_in_bits;
